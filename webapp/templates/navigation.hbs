@@ -1,0 +1,25 @@
+{{! location: webapp/templates/navigation.hbs }}
+
+<div class="navbar-header">
+  {{link-to title 'application' classNames="navbar-brand"}}
+
+</div>
+<div class="navbar-collapse collapse">
+  <ul class="nav navbar-nav">
+    {{#each}}
+    {{#list-link}}
+      {{link-to title location}}
+    {{/list-link}}
+    {{/each}}
+  </ul>
+
+  <ul class="nav navbar-nav navbar-right">
+   <li class="dropdown">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown">My Account <span class="caret"></span></a>
+    <ul class="dropdown-menu" role="menu"</ul>
+      <li><a href="#">View / Edit</a></li>
+      <li><a href="#">Log Out</a></li>
+    </ul>
+   </li>
+  </ul>
+</div>

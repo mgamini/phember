@@ -10,11 +10,15 @@ defmodule Phember.Router do
     plug :accepts, ~w(json)
   end
 
-  scope "/" do
-    pipe_through :browser # Use the default browser stack
-
-    get "/", Phember.PageController, :index
+  scope alias: Phember do
+    get "/", PageController, :index
   end
+
+  # scope "/" do
+  #   pipe_through :browser # Use the default browser stack
+
+  #   get "/", Phember.PageController, :index
+  # end
 
   # Other scopes may use custom stacks.
   # scope "/api" do
