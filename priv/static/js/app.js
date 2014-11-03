@@ -1,79 +1,133 @@
-App = Ember.Application.create({});
+window.App = Ember.Application.create({
+  // ember debugging
+//  LOG_ACTIVE_GENERATION:    true,
+//  LOG_BINDINGS:             true,
+  LOG_TRANSITIONS:          true,
+//  LOG_TRANSITIONS_INTERNAL: true,
+//  LOG_VIEW_LOOKUPS:         true,
 
-// var posts = [{
-//   id: '1',
-//   title: "Rails is Omakase",
-//   author: { name: "d2h" },
-//   date: new Date('12-27-2012'),
-//   excerpt: "There are lots of à la carte software environments in this world. Places where in order to eat, you must first carefully look over the menu of options to order exactly what you want.",
-//   body: "I want this for my ORM, I want that for my template language, and let's finish it off with this routing library. Of course, you're going to have to know what you want, and you'll rarely have your horizon expanded if you always order the same thing, but there it is. It's a very popular way of consuming software.\n\nRails is not that. Rails is omakase."
-// }, {
-//   id: '2',
-//   title: "The Parley Letter",
-//   author: { name: "d2h" },
-//   date: new Date('12-24-2012'),
-//   excerpt: "My [appearance on the Ruby Rogues podcast](http://rubyrogues.com/056-rr-david-heinemeier-hansson/) recently came up for discussion again on the private Parley mailing list.",
-//   body: "A long list of topics were raised and I took a time to ramble at large about all of them at once. Apologies for not taking the time to be more succinct, but at least each topic has a header so you can skip stuff you don't care about.\n\n### Maintainability\n\nIt's simply not true to say that I don't care about maintainability. I still work on the oldest Rails app in the world."
-// }];
-
-App.Router.map(function() {
-  this.route('posts');
+  PLATFORMS: [
+    'android',
+    'editor',
+    'ios',
+    'osx',
+    'linux',
+    'windows'
+  ]
 });
 
-App.IndexRoute = Ember.Route.extend({});
-App.IndexController = Ember.ObjectController.extend({});
+var map = Ember.ArrayPolyfills.map;
+App.ListLinkComponent = Ember.Component.extend({
+  tagName: 'li',
+  classNameBindings: ['active'],
+  active: function() {
+    return this.get('childViews').anyBy('active');
+  }.property('childViews.@each.active')
+});
+App.LoginController = Ember.Controller.extend({
+  pagetitle: "Log In",
+  onSuccess: function(res) {
+    res.id = 0;
+    this.store.createRecord('current_user', App.Utils.camelizeObj(res))
+    this.transitionToRoute('news_items')
+  },
+  onFail: function(error) {
+    this.set('errorMessage', error)
+  },
+  actions: {
+    login: function() {
+      params = this.getProperties('email', 'password');
 
-App.PostsRoute = Ember.Route.extend({});
-App.PostsController = Ember.ObjectController.extend({});
+      if (!App.Validate.obj(params, {email: 'email', password: 'string'})) {
+        this.set('errorMessage', 'Please enter a valid email address and password.')
+        return false;
+      }
 
+      this.get('session').logIn(params, this.get('onSuccess').bind(this), this.get('onFail').bind(this));
+    }
+  }
+});
 
-// App.IndexRoute = Ember.Route.extend({});
-// App.IndexController = Ember.Route.extend({});
-
-// App.PostsRoute = Ember.Route.extend({
-//   model: function() {
-//     return posts;
-//   }
-// });
-
-// App.PostRoute = Ember.Route.extend({
-//   model: function(params) {
-//     return posts.findBy('id', params.post_id);
-//   }
-// });
-
-// App.PostController = Ember.ObjectController.extend({
-//   isEditing: false,
-
-//   actions: {
-//     edit: function() {
-//       this.set('isEditing', true);
-//     },
-
-//     doneEditing: function() {
-//       this.set('isEditing', false);
-//     }
-//   }
-// });
-
-// var showdown = new Showdown.converter();
-
-// Ember.Handlebars.helper('format-markdown', function(input) {
-//   return new Handlebars.SafeString(showdown.makeHtml(input));
-// });
-
-// Ember.Handlebars.helper('format-date', function(date) {
-//   return moment(date).fromNow();
-// });
 App.NavigationController = Ember.ArrayController.extend({
   model: Ember.A([
-    //Ember.Object.create({title: "Index", location: 'index', active: null}),
     Ember.Object.create({title: "Posts", location: 'posts', active: null}),
   ]),
-  title: "Stuff!"
+  title: "Phember"
 });
-// App.NavigationView = Ember.View.extend({
-//   tagName: 'nav',
-//   classNames: ['top-bar', 'navbar'],
-//   templateName: 'navigation'
-// });
+
+App.PostsIndexController = Ember.ArrayController.extend({});
+
+App.PostController = Ember.Controller.extend({
+
+})
+App.Router.map(function() {
+  this.route('login');
+  this.route('logout');
+
+  this.resource('posts', function() {
+
+  })
+});
+
+App.IndexRoute = Ember.Route.extend({
+  // redirect: function() {
+  //   this.transitionTo('login');
+  // }
+});
+
+// App.LoginRoute = Em.Route.extend(Auth.LoginRouteMixin);
+// App.LogoutRoute = Em.Route.extend(Auth.LogoutRouteMixin);
+
+App.Utils = {
+  camelizeObj: function(inp) {
+    var out = {};
+    Object.keys(inp).forEach(function(key) {
+      out[Ember.String.camelize(key)] = inp[key]
+    })
+    return out;
+  },
+  typeChecker: function(inp) {
+    if (typeof inp === "object") {
+      if (inp instanceof Array)
+        return "array"
+      else
+        return "object"
+    } else {
+      return typeof inp
+    }
+  },
+  findIdx: function(arr, key, value) {
+    var res = null;
+    arr.some(function(item, idx) {
+      if (item && item[key] == value)
+        res = idx;
+    })
+
+    return res;
+  },
+  authCookie: {
+    toObj: function(obj) {
+      try {
+        return JSON.parse(atob(obj))
+      } catch(error) {
+        return false;
+      }
+    },
+    fromObj: function(obj) {
+      try {
+        return bota(JSON.stringify(obj))
+      } catch(error) {
+        return false;
+      }
+    },
+  }
+}
+App.NavigationView = Ember.View.extend({
+  tagName: 'nav',
+  classNames: ['top-bar', 'navbar'],
+  templateName: 'navigation'
+});
+
+App.PostView = Ember.View.extend({
+
+})
