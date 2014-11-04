@@ -213,13 +213,26 @@ App.ListLinkComponent = Ember.Component.extend({
   }.property('childViews.@each.active')
 });
 App.LoginController = Ember.Controller.extend({
+  needs: ['service:session'],
+  actions: {
+    logIn: function() {
+      this.get('service:session').send('join', "tokentokentoken", 123456789)
+    }
+  }
 });
 
 App.NavigationController = Ember.ArrayController.extend({
+  needs: ['service:session', 'login'],
   model: Ember.A([
     Ember.Object.create({title: "Posts", location: 'posts', active: null}),
   ]),
-  title: "Phember"
+  title: "Phember",
+  isLoggedIn: Ember.computed.alias('service:session.isAuthenticated'),
+  actions: {
+    logIn: function() {
+      this.get('controllers.login').send('logIn')
+    }
+  }
 });
 
 App.PostsIndexController = Ember.ArrayController.extend({});
@@ -288,8 +301,6 @@ App.PhoenixSocket = Ember.Controller.extend({
     var sock = new Phoenix.Socket(App.PHOENIX_ENDPOINT);
     sock.onClose = this.get('handleClose').bind(this);
     this.set('socket', sock);
-
-    console.log('init')
   },
   addTopic: function(channel, topic, message, callback) {
     this.get('socket').join(channel, topic, message || {}, callback || function() {});
@@ -301,25 +312,21 @@ App.PhoenixSocket = Ember.Controller.extend({
 
 App.Session = Ember.Controller.extend({
   needs: ['phoenix'],
-  isInitialized: false,
-  init: function() {
-    console.log('session init')
-
-    this.get('service:phoenix').addTopic('session', 'user', {id: "me"}, this.get('onSessionJoin'))
+  isAuthenticated: false,
+  init: function() {},
+  actions: {
+    join: function(token, id) {
+      this.get('service:phoenix').addTopic('session', 'user', {token: token, id: id}, this.get('onSessionJoin'))
+    }
   },
   onSessionJoin: function() {
     console.log('session join', arguments)
   }
 })
 
-
-
-
-
 Ember.onLoad('Ember.Application', function(Application) {
   Application.initializer({
     name: 'session',
-    //after: 'phoenix',
 
     initialize: function(container, application) {
       application.register('service:session', App.Session, {singleton: true})

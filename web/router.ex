@@ -16,7 +16,6 @@ defmodule Phember.Router do
   end
 
   channel "session", Phember.SessionChannel
-  channel "posts", Phember.PostsChannel
 
   # scope "/" do
   #   pipe_through :browser # Use the default browser stack

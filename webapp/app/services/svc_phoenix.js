@@ -41,8 +41,6 @@ App.PhoenixSocket = Ember.Controller.extend({
     var sock = new Phoenix.Socket(App.PHOENIX_ENDPOINT);
     sock.onClose = this.get('handleClose').bind(this);
     this.set('socket', sock);
-
-    console.log('init')
   },
   addTopic: function(channel, topic, message, callback) {
     this.get('socket').join(channel, topic, message || {}, callback || function() {});
@@ -54,25 +52,21 @@ App.PhoenixSocket = Ember.Controller.extend({
 
 App.Session = Ember.Controller.extend({
   needs: ['phoenix'],
-  isInitialized: false,
-  init: function() {
-    console.log('session init')
-
-    this.get('service:phoenix').addTopic('session', 'user', {id: "me"}, this.get('onSessionJoin'))
+  isAuthenticated: false,
+  init: function() {},
+  actions: {
+    join: function(token, id) {
+      this.get('service:phoenix').addTopic('session', 'user', {token: token, id: id}, this.get('onSessionJoin'))
+    }
   },
   onSessionJoin: function() {
     console.log('session join', arguments)
   }
 })
 
-
-
-
-
 Ember.onLoad('Ember.Application', function(Application) {
   Application.initializer({
     name: 'session',
-    //after: 'phoenix',
 
     initialize: function(container, application) {
       application.register('service:session', App.Session, {singleton: true})
