@@ -1,5 +1,6 @@
 defmodule Phember.Router do
   use Phoenix.Router
+  use Phoenix.Router.Socket, mount: "/ws"
 
   pipeline :browser do
     plug :accepts, ~w(html)
@@ -13,6 +14,9 @@ defmodule Phember.Router do
   scope alias: Phember do
     get "/", PageController, :index
   end
+
+  channel "session", Phember.SessionChannel
+  channel "posts", Phember.PostsChannel
 
   # scope "/" do
   #   pipe_through :browser # Use the default browser stack

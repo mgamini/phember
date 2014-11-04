@@ -13,7 +13,9 @@ window.App = Ember.Application.create({
     'osx',
     'linux',
     'windows'
-  ]
+  ],
+
+  PHOENIX_ENDPOINT: location.protocol.match(/^https/) ? "wss://" + location.host + "/ws" : "ws://" + location.host + "/ws",
 });
 
 var map = Ember.ArrayPolyfills.map;
