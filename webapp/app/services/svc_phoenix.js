@@ -1,36 +1,66 @@
-//App.ApplicationStore = DS.Store.extend();
+DS.PhoenixSocketAdapter = DS.RESTAdapter.extend({
+  needs: ['phoenix', 'session'],
+  _initialized: false,
+  _transactions: {},
+  _channel: null,
 
-// App.PhoenixController = Ember.Controller.extend({
-//   socket: null,
-//   topics: Ember.Map.create(),
-//   init: function() {
-//     var sock = new Phoenix.Socket(App.PHOENIX_ENDPOINT);
+  setSocket: function() {
+    this.container.lookup('service:phoenix').addTopic("session", "data", {}, this.get('setSocketResponse').bind(this))
+  },
+  setSocketResponse: function(chan, res) {
+    chan.on("data", this.get('onData').bind(this));
 
-//     this.set('socket', sock);
-//     sock.onClose = this.get('handleClose').bind(this);
-//   },
-//   addTopic: function(channel, topic, message, callback) {
-//     this.get('socket').join(channel, topic, message || {}, callback || function() {});
-//   },
-//   handleClose: function() {
-//     console.log('connection closed')
-//   }
-// })
+    this.set('_channel', chan);
+    this.set('_initialized', true);
+  },
+  onData: function(data) {
+    console.log("got data: ", data)
+  },
+  ajax: function(url, type, params) {
+    var uuid = this.get('generateUuid')();
+    var txn = this.get('_transactions')[uuid] = DS.PhoenixTransaction.create({uuid: uuid, channel: this.get('_channel')})
 
-// App.PhoenixSessionController = Ember.Controller.extend({
-//   needs: ['phoenix'],
-//   init: function() {
-//     var socket = this.get('controllers.phoenix');
-//     console.log(socket);
-//   }
-// })
+    txn.send(url, type, params);
 
+    return txn.promise;
+  },
+  generateUuid: function() {
+    var date = new Date().getTime();
+    var uuid = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(character) {
+      var random = (date + Math.random() * 16) % 16 | 0;
+      date = Math.floor(date/16);
+      return (character === "x" ? random : (random & 0x7 | 0x8)).toString(16);
+    });
+    return uuid;
+  },
+})
 
+DS.PhoenixTransaction = Ember.Object.extend({
+  uuid: null,
+  promise: null,
+  success: null,
+  error: null,
+  channel: null,
+  init: function() {
+    var promise = new Ember.RSVP.Promise(function(resolve, reject) {
+      this.set('success', function(json) {
+        Ember.run(null, resolve, json);
+      });
+      this.set('error', function(json) {
+        Ember.run(null, reject, json);
+      })
+    }.bind(this))
+    this.set('promise', promise);
+  },
+  send: function(url, type, params) {
+    var payload = {uuid: this.get('uuid'), type: type, params: params, path: this.get('derivePath')(url) }
 
-
-// var Transaction = Ember.Object.extend({
-
-// })
+    this.get('channel').send('data', payload);
+  },
+  derivePath: function(url) {
+    return url.replace(this.host, "");
+  }
+})
 
 App.PhoenixSocket = Ember.Controller.extend({
   socket: null,
@@ -43,24 +73,45 @@ App.PhoenixSocket = Ember.Controller.extend({
     this.set('socket', sock);
   },
   addTopic: function(channel, topic, message, callback) {
-    this.get('socket').join(channel, topic, message || {}, callback || function() {});
+    var topicKey = channel + ":" + topic;
+
+    if (this.get('topics').get(topicKey)) {
+      callback(this.get('topics').get(topicKey), true);
+    } else {
+      this.get('socket').join(channel, topic, message || {}, this.get('handleAddTopic').bind(this, topicKey, callback));
+    }
+  },
+  handleAddTopic: function(topicKey, callback, channel) {
+    channel.on("join", function(res) {
+      this.get('topics').set(topicKey, channel);
+      callback(channel, res)
+    }.bind(this))
+    channel.on("error", function(res) {
+      callback("error", res)
+    })
   },
   handleClose: function() {
     console.log('connection closed')
   }
 })
 
-App.Session = Ember.Controller.extend({
+App.PhoenixSession = Ember.Controller.extend({
   needs: ['phoenix'],
+  channel: null,
   isAuthenticated: false,
   init: function() {},
   actions: {
-    join: function(token, id) {
-      this.get('service:phoenix').addTopic('session', 'user', {token: token, id: id}, this.get('onSessionJoin'))
+    join: function(params, success, fail) {
+      this.get('service:phoenix').addTopic('session', 'user', params, function(chan, res) {
+        if (chan == "error") {
+          fail(res)
+        } else {
+          this.set('isAuthenticated', true);
+          this.set('channel', chan);
+          success(res);
+        }
+      }.bind(this))
     }
-  },
-  onSessionJoin: function() {
-    console.log('session join', arguments)
   }
 })
 
@@ -69,7 +120,7 @@ Ember.onLoad('Ember.Application', function(Application) {
     name: 'session',
 
     initialize: function(container, application) {
-      application.register('service:session', App.Session, {singleton: true})
+      application.register('service:session', App.PhoenixSession, {singleton: true})
 
       application.inject('controller', 'service:session', 'service:session');
     }
@@ -79,8 +130,14 @@ Ember.onLoad('Ember.Application', function(Application) {
     name: 'phoenix',
     initialize: function(container, application) {
       application.register('service:phoenix', App.PhoenixSocket, {singleton: true})
+      application.register('adapter:phoenix', DS.PhoenixSocketAdapter, {singleton: true});
+
+      App.ApplicationAdapter = DS.PhoenixSocketAdapter;
+      container.lookup('adapter:application').setSocket();
 
       application.inject('service:session', 'service:phoenix', 'service:phoenix')
     }
   })
 })
+
+//App.__container__.lookup('store:main').find("post", 1)

@@ -10,7 +10,7 @@
     "ember": "1.8.0",
     "ember-data": "1.0.0-beta.11",
     "moment": "~2.8.1",
-    "elixir-phoenix": "0.5.0",
+    "elixir-phoenix": "0.5.1",
     "bootstrap": "~3.2.0"
   },
   "devDependencies": {}
