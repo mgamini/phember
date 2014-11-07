@@ -139,5 +139,3 @@ Ember.onLoad('Ember.Application', function(Application) {
     }
   })
 })
-
-//App.__container__.lookup('store:main').find("post", 1)

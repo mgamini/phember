@@ -250,10 +250,15 @@ App.PostsIndexController = Ember.ArrayController.extend({});
 App.PostController = Ember.Controller.extend({
 
 })
+App.Author = DS.Model.extend({
+  first_name: DS.attr('string'),
+  last_name: DS.attr('string'),
+  posts: DS.hasMany('post')
+})
 App.Post = DS.Model.extend({
   title: DS.attr('string'),
   body: DS.attr('string'),
-  author: DS.attr('string')
+  author: DS.belongsTo('author')
 })
 App.Router.map(function() {
   this.route('login');
@@ -414,8 +419,6 @@ Ember.onLoad('Ember.Application', function(Application) {
     }
   })
 })
-
-//App.__container__.lookup('store:main').find("post", 1)
 App.Utils = {
   camelizeObj: function(inp) {
     var out = {};
