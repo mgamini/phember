@@ -15,6 +15,17 @@ DS.PhoenixSocketAdapter = DS.RESTAdapter.extend({
   },
   onData: function(data) {
     console.log("got data: ", data)
+    var caller = this.get('_transactions')[data.uuid];
+
+    // this should handle error
+    if (true) {
+      caller.success(data.message)
+    } else {
+      caller.error(data.message)
+    }
+
+    caller.destroy();
+    delete caller;
   },
   ajax: function(url, type, params) {
     var uuid = this.get('generateUuid')();

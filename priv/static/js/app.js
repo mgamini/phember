@@ -253,12 +253,12 @@ App.PostController = Ember.Controller.extend({
 App.Author = DS.Model.extend({
   first_name: DS.attr('string'),
   last_name: DS.attr('string'),
-  posts: DS.hasMany('post')
+  posts: DS.hasMany('post', {async: true})
 })
 App.Post = DS.Model.extend({
   title: DS.attr('string'),
   body: DS.attr('string'),
-  author: DS.belongsTo('author')
+  author: DS.belongsTo('author', {async: true})
 })
 App.Router.map(function() {
   this.route('login');
@@ -295,6 +295,17 @@ DS.PhoenixSocketAdapter = DS.RESTAdapter.extend({
   },
   onData: function(data) {
     console.log("got data: ", data)
+    var caller = this.get('_transactions')[data.uuid];
+
+    // this should handle error
+    if (true) {
+      caller.success(data.message)
+    } else {
+      caller.error(data.message)
+    }
+
+    caller.destroy();
+    delete caller;
   },
   ajax: function(url, type, params) {
     var uuid = this.get('generateUuid')();

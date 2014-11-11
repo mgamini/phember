@@ -34,14 +34,8 @@ defmodule Phember.SessionChannel do
   def event(socket, "data", message) do
     IO.puts "message: #{inspect message}"
 
-    IO.inspect get_assign(socket, :data_server)
-    IO.inspect message
-    IO.inspect Agent.get(@name, &(&1[:auth_level]))
-
     res = get_assign(socket, :data_server)
       |> Phember.Broker.request(message, Agent.get(@name, &(&1[:auth_level])))
-
-    IO.inspect res
 
     reply socket, "data", res
   end
