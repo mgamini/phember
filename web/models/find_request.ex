@@ -13,7 +13,10 @@ defmodule Phember.Models.Request do
   # }
 
   def create(req) do
+    IO.puts "REQ BUILD => #{inspect req}"
     [data_type | path] = parse_path(req["path"])
+
+    if length(path) == 0, do: path = nil
 
     %__MODULE__{
       uuid: req["uuid"],
@@ -24,8 +27,9 @@ defmodule Phember.Models.Request do
     }
   end
 
-  defp parse_params(nil), do: nil
   defp parse_params(%{"data" => params}), do: params
+  defp parse_params(nil), do: nil
+  defp parse_params(%{}), do: nil
 
   defp parse_path(path), do: URI.decode(path) |> String.strip(?/) |> String.split "/"
 

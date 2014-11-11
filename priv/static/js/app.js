@@ -278,6 +278,11 @@ App.IndexRoute = Ember.Route.extend({
 // App.LoginRoute = Em.Route.extend(Auth.LoginRouteMixin);
 // App.LogoutRoute = Em.Route.extend(Auth.LogoutRouteMixin);
 
+App.PostsIndexRoute = Ember.Route.extend({
+  model: function() {
+    return this.store.findAll('post');
+  }
+});
 DS.PhoenixSocketAdapter = DS.RESTAdapter.extend({
   needs: ['phoenix', 'session'],
   _initialized: false,
