@@ -41,6 +41,8 @@ defmodule Phember.SessionChannel do
     res = get_assign(socket, :data_server)
       |> Phember.Broker.request(message, Agent.get(@name, &(&1[:auth_level])))
 
+    IO.inspect res
+
     reply socket, "data", res
   end
 

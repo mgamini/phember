@@ -19,10 +19,12 @@ defmodule Phember.Broker do
   # Gen Server Calls
   #
 
-  def handle_call({:request, %Request{req_type: "get", data_type: data_type, path: path, params: params} = req, auth_level}, _from, state) do
+  def handle_call({:request, %Request{req_type: "get", data_type: data_type, path: path, params: params, uuid: uuid} = req, auth_level}, _from, state) do
     case apply(@modules[data_type], :get, [path, params]) do
-      {:ok, result} -> {:reply, result, state}
-      {:error, error} -> {:reply, error, state}
+      {:ok, result} ->
+        {:reply, %{uuid: uuid, message: %{} |> Dict.put_new(data_type, result) }, state}
+      {:error, error} ->
+        {:reply, %{uuid: uuid, message: error}, state}
     end
   end
 

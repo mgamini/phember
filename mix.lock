@@ -2,6 +2,7 @@
   "cowlib": {:hex, :cowlib, "1.0.0"},
   "decimal": {:hex, :decimal, "0.2.5"},
   "ecto": {:hex, :ecto, "0.2.5"},
+  "elixilorem": {:hex, :elixilorem, "0.0.1"},
   "linguist": {:hex, :linguist, "0.1.2"},
   "phoenix": {:git, "git://github.com/phoenixframework/phoenix.git", "ba7742bc9df078b9c8297b55b7be870ab6c750eb", []},
   "plug": {:hex, :plug, "0.8.2"},

@@ -23,6 +23,7 @@ defmodule Phember.Mixfile do
   # Type `mix help deps` for examples and options
   defp deps do
     [{:phoenix, github: "phoenixframework/phoenix"},
-     {:cowboy, "~> 1.0"}]
+     {:cowboy, "~> 1.0"},
+     {:elixilorem, "~> 0.0.1"}]
   end
 end
