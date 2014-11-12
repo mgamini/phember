@@ -1,0 +1,19 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-5">
+      {{#if controller.isNew}}
+        <h2>New Post</h2>
+      {{else}}
+        <h2>Edit Post</h2>
+      {{/if}}
+
+      {{partial "posts/form"}}
+    </div>
+    <div class="col-md-5">
+    </div>
+  </div>
+  <div class="form-actions">
+    <button {{action "updateItem" this}} class="btn btn-success">Create</button>
+    <button {{action "cancel"}} class="btn btn-inverse">Cancel</button>
+  </div>
+</div>

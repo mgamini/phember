@@ -245,10 +245,47 @@ App.NavigationController = Ember.ArrayController.extend({
   }
 });
 
+App.PostsEditController = Ember.ObjectController.extend({
+  actions: {
+    updateItem: function(post) {
+      var hash = {
+        // "author": 1
+      }
+
+      post.setProperties(hash);
+      post.save();
+
+      this.get("target").transitionTo("posts");
+    },
+
+    cancel: function() {
+      this.content.deleteRecord();
+      this.transitionToRoute('posts.index');
+    }
+  },
+
+  isNew: function() {
+    return this.get('content').get('id');
+  }.property()
+});
+
 App.PostsIndexController = Ember.ArrayController.extend({
   hasItems: function() {
     return this.get('content');
   }.property("content.@each"),
+  actions: {
+    newPost: function() {
+      this.transitionToRoute('posts.new');
+    }
+  }
+});
+
+App.PostsNewController = Ember.ObjectController.extend({
+  actions: {
+    submitForm: function(event) {
+      this.transitionToRoute('posts.index');
+    }
+  }
 });
 
 App.PostController = Ember.Controller.extend({
@@ -293,6 +330,22 @@ App.PostsIndexRoute = Ember.Route.extend({
     return this.store.findAll('post');
   }
 });
+
+
+App.PostsNewRoute = Ember.Route.extend({
+  model: function() {
+    return this.store.createRecord('post');
+  },
+
+  setupController: function(controller, model) {
+    this.controllerFor('posts.edit').setProperties({isNew: true, content: this.store.createRecord('post')});
+  },
+
+  renderTemplate: function() {
+    this.render('posts.edit');
+  }
+});
+
 DS.PhoenixSocketAdapter = DS.RESTAdapter.extend({
   needs: ['phoenix', 'session'],
   _initialized: false,

@@ -20,7 +20,6 @@ defmodule Phember.Broker do
   #
 
   def handle_call({:request, %Request{req_type: "get", data_type: data_type, path: path, params: params, uuid: uuid} = req, auth_level}, _from, state) do
-    IO.inspect req
     case apply(@modules[data_type], :get, [path, params]) do
       {:ok, result} ->
         {:reply, %{uuid: uuid, message: %{} |> Dict.put_new(data_type, result) }, state}
