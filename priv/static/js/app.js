@@ -245,7 +245,11 @@ App.NavigationController = Ember.ArrayController.extend({
   }
 });
 
-App.PostsIndexController = Ember.ArrayController.extend({});
+App.PostsIndexController = Ember.ArrayController.extend({
+  hasItems: function() {
+    return this.get('content');
+  }.property("content.@each"),
+});
 
 App.PostController = Ember.Controller.extend({
 
@@ -258,14 +262,20 @@ App.Author = DS.Model.extend({
 App.Post = DS.Model.extend({
   title: DS.attr('string'),
   body: DS.attr('string'),
-  author: DS.belongsTo('author', {async: true})
+  author: DS.belongsTo('author', {async: true}),
+
+  formattedBody: function() {
+    return this.get('body').replace(/\n\r?/g, '<br /><br />');
+  }.property('body').cacheable()
 })
 App.Router.map(function() {
   this.route('login');
   this.route('logout');
 
   this.resource('posts', function() {
-
+    this.resource('post', { path: ':post_id' });
+    this.route("new");
+    this.route("edit", {path: "/:post_id"});
   })
 });
 
@@ -297,6 +307,8 @@ DS.PhoenixSocketAdapter = DS.RESTAdapter.extend({
 
     this.set('_channel', chan);
     this.set('_initialized', true);
+
+    this.get('unloadQueue').call(this);
   },
   onData: function(data) {
     console.log("got data: ", data)
@@ -312,11 +324,20 @@ DS.PhoenixSocketAdapter = DS.RESTAdapter.extend({
     caller.destroy();
     delete caller;
   },
+  unloadQueue: function() {
+    var txns = this.get('_transactions');
+
+    for (var uuid in txns) {
+      this.get('_channel').send('data', txns[uuid].payload());
+    }
+  },
   ajax: function(url, type, params) {
     var uuid = this.get('generateUuid')();
-    var txn = this.get('_transactions')[uuid] = DS.PhoenixTransaction.create({uuid: uuid, channel: this.get('_channel')})
+    var txn = this.get('_transactions')[uuid] = DS.PhoenixTransaction.create({uuid: uuid, url: url, type: type, params: params})
 
-    txn.send(url, type, params);
+    if (this.get('_initialized')) {
+      this.get('_channel').send('data', txn.payload());
+    }
 
     return txn.promise;
   },
@@ -333,10 +354,12 @@ DS.PhoenixSocketAdapter = DS.RESTAdapter.extend({
 
 DS.PhoenixTransaction = Ember.Object.extend({
   uuid: null,
+  url: null,
+  type: null,
+  params: null,
   promise: null,
   success: null,
   error: null,
-  channel: null,
   init: function() {
     var promise = new Ember.RSVP.Promise(function(resolve, reject) {
       this.set('success', function(json) {
@@ -348,13 +371,11 @@ DS.PhoenixTransaction = Ember.Object.extend({
     }.bind(this))
     this.set('promise', promise);
   },
-  send: function(url, type, params) {
-    var payload = {uuid: this.get('uuid'), type: type, params: params, path: this.get('derivePath')(url) }
-
-    this.get('channel').send('data', payload);
+  payload: function(url, type, params) {
+    return {uuid: this.get('uuid'), type: this.get('type'), params: this.get('params'), path: this.get('derivePath').call(this) }
   },
-  derivePath: function(url) {
-    return url.replace(this.host, "");
+  derivePath: function() {
+    return this.get('url').replace(this.host, "");
   }
 })
 

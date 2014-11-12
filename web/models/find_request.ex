@@ -13,7 +13,6 @@ defmodule Phember.Models.Request do
   # }
 
   def create(req) do
-    IO.puts "REQ BUILD => #{inspect req}"
     [data_type | path] = parse_path(req["path"])
 
     if length(path) == 0, do: path = nil
