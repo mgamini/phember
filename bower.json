@@ -11,7 +11,8 @@
     "ember-data": "1.0.0-beta.11",
     "moment": "~2.8.1",
     "elixir-phoenix": "0.5.1",
-    "bootstrap": "~3.2.0"
+    "bootstrap": "~3.2.0",
+    "ember-phoenix-socket": "0.0.1-beta.1"
   },
   "devDependencies": {}
 }
