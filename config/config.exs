@@ -5,19 +5,13 @@
 # is restricted to this project.
 use Mix.Config
 
-# Configures the router
-config :phoenix, Phember.Router,
+# Configures the endpoint
+config :phxbuild, Phxbuild.Endpoint,
   url: [host: "localhost"],
-  http: [port: System.get_env("PORT")],
-  secret_key_base: "GJDT45h2FQ/PrsF7xgK+0Qb0PgwMHrhpD+sBgcpNeKlSRciftMlmMhys71ZAKh1F5nYbCuPRMwgXODLSxN+pMw==",
-  catch_errors: true,
+  secret_key_base: "J0lKPK+2EetLN3RK9YfLL4p9smWzYMKLnG3Ra4KSPp69icqHX0JHL0VbDpR4UaxV",
   debug_errors: false,
-  error_controller: Phember.PageController
-
-# Session configuration
-config :phoenix, Phember.Router,
-  session: [store: :cookie,
-            key: "_phember_key"]
+  pubsub: [name: Phxbuild.PubSub,
+           adapter: Phoenix.PubSub.PG2]
 
 # Configures Elixir's Logger
 config :logger, :console,

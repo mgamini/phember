@@ -1,8 +1,8 @@
-defmodule Phember.Mixfile do
+defmodule Phxbuild.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :phember,
+    [app: :phxbuild,
      version: "0.0.1",
      elixir: "~> 1.0",
      elixirc_paths: ["lib", "web"],
@@ -14,7 +14,7 @@ defmodule Phember.Mixfile do
   #
   # Type `mix help compile.app` for more information
   def application do
-    [mod: {Phember, []},
+    [mod: {Phxbuild, []},
      applications: [:phoenix, :cowboy, :logger]]
   end
 
@@ -22,8 +22,9 @@ defmodule Phember.Mixfile do
   #
   # Type `mix help deps` for examples and options
   defp deps do
-    [{:phoenix, github: "phoenixframework/phoenix"},
-     {:cowboy, "~> 1.0"},
-     {:elixilorem, "~> 0.0.1"}]
+    [{:phoenix, "~> 0.10.0"},
+     {:phoenix_ecto, "~> 0.1"},
+     {:postgrex, ">= 0.0.0"},
+     {:cowboy, "~> 1.0"}]
   end
 end

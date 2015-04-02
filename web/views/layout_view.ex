@@ -1,4 +1,3 @@
-defmodule Phember.LayoutView do
-  use Phember.View
-
+defmodule Phxbuild.LayoutView do
+  use Phxbuild.Web, :view
 end
