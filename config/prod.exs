@@ -1,20 +1,45 @@
 use Mix.Config
 
+# For production, we configure the host to read the PORT
+# from the system environment. Therefore, you will need
+# to set PORT=80 before running your server.
+#
+# You should also configure the url host to something
+# meaningful, we use this information when generating URLs.
+config :phember, Phember.Endpoint,
+  http: [port: {:system, "PORT"}],
+  url: [host: "example.com"]
+
 # ## SSL Support
 #
-# To get SSL working, you will need to set:
+# To get SSL working, you will need to add the `https` key
+# to the previous section:
 #
-#     https: [port: 443,
-#             keyfile: System.get_env("SOME_APP_SSL_KEY_PATH"),
-#             certfile: System.get_env("SOME_APP_SSL_CERT_PATH")]
+#  config:phember, Phember.Endpoint,
+#    ...
+#    https: [port: 443,
+#            keyfile: System.get_env("SOME_APP_SSL_KEY_PATH"),
+#            certfile: System.get_env("SOME_APP_SSL_CERT_PATH")]
 #
 # Where those two env variables point to a file on
 # disk for the key and cert.
 
-config :phoenix, Phember.Router,
-  url: [host: "example.com"],
-  http: [port: System.get_env("PORT")],
-  secret_key_base: "GJDT45h2FQ/PrsF7xgK+0Qb0PgwMHrhpD+sBgcpNeKlSRciftMlmMhys71ZAKh1F5nYbCuPRMwgXODLSxN+pMw=="
+# Do not print debug messages in production
+config :logger, level: :info
 
-config :logger,
-  level: :info
+# ## Using releases
+#
+# If you are doing OTP releases, you need to instruct Phoenix
+# to start the server for all endpoints:
+#
+#     config :phoenix, :serve_endpoints, true
+#
+# Alternatively, you can configure exactly which server to
+# start per endpoint:
+#
+#     config :phember, Phember.Endpoint, server: true
+#
+
+# Finally import the config/prod.secret.exs
+# which should be versioned separately.
+import_config "prod.secret.exs"

@@ -1,30 +1,25 @@
 defmodule Phember.Router do
   use Phoenix.Router
-  use Phoenix.Router.Socket, mount: "/ws"
 
   pipeline :browser do
-    plug :accepts, ~w(html)
+    plug :accepts, ["html"]
     plug :fetch_session
+    plug :fetch_flash
+    plug :protect_from_forgery
   end
 
   pipeline :api do
-    plug :accepts, ~w(json)
+    plug :accepts, ["json"]
   end
 
-  scope alias: Phember do
+  scope "/", Phember do
+    pipe_through :browser # Use the default browser stack
+
     get "/", PageController, :index
   end
 
-  channel "session", Phember.SessionChannel
-
-  # scope "/" do
-  #   pipe_through :browser # Use the default browser stack
-
-  #   get "/", Phember.PageController, :index
-  # end
-
   # Other scopes may use custom stacks.
-  # scope "/api" do
+  # scope "/api", Phember do
   #   pipe_through :api
   # end
 end

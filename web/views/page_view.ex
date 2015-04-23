@@ -1,4 +1,3 @@
 defmodule Phember.PageView do
-  use Phember.View
-
+  use Phember.Web, :view
 end

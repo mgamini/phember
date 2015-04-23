@@ -3,5 +3,5 @@
 erl_crash.dump
 *.ez
 /.sass-cache
-/node_modules
-/webapp/bower_components
+/app/node_modules
+/app/bower_components

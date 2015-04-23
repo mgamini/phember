@@ -5,19 +5,14 @@
 # is restricted to this project.
 use Mix.Config
 
-# Configures the router
-config :phoenix, Phember.Router,
+# Configures the endpoint
+config :phember, Phember.Endpoint,
   url: [host: "localhost"],
-  http: [port: System.get_env("PORT")],
-  secret_key_base: "GJDT45h2FQ/PrsF7xgK+0Qb0PgwMHrhpD+sBgcpNeKlSRciftMlmMhys71ZAKh1F5nYbCuPRMwgXODLSxN+pMw==",
-  catch_errors: true,
+  root: Path.expand("..", __DIR__),
+  secret_key_base: "DoCdup/1ioJXSq+rxq05UDF0iiu3qrLDo41qGJvMbRhwEq4cXKlJHgpQIg+Go8gJ",
   debug_errors: false,
-  error_controller: Phember.PageController
-
-# Session configuration
-config :phoenix, Phember.Router,
-  session: [store: :cookie,
-            key: "_phember_key"]
+  pubsub: [name: Phember.PubSub,
+           adapter: Phoenix.PubSub.PG2]
 
 # Configures Elixir's Logger
 config :logger, :console,
