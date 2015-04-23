@@ -3,8 +3,8 @@
 erl_crash.dump
 *.ez
 /.sass-cache
-/app/node_modules
-/app/bower_components
-/app/dist
-/app/tmp
+/node_modules
+/bower_components
+/dist
+/tmp
 /priv/static

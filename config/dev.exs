@@ -11,7 +11,7 @@ config :phember, Phember.Endpoint,
   debug_errors: true,
   code_reloader: true,
   cache_static_lookup: false,
-  watchers: []
+  watchers: [node: ["node_modules/ember-cli/bin/ember", "build", "--output-path", "priv/static", "--watch"]]
 
 # Watch static and templates for browser reloading.
 config :phember, Phember.Endpoint,
