@@ -5,7 +5,12 @@ var outputBase = '../../../priv/static/';
 
 var outpath = function(path) { return outputBase + path };
 
-var app = new EmberApp()
+var app = new EmberApp({
+  storeConfigInMeta: false,
+  trees: {
+    tests: 'apptests'
+  }
+})
 // Use `app.import` to add additional libraries to the generated
 // output files.
 //

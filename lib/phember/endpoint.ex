@@ -4,7 +4,7 @@ defmodule Phember.Endpoint do
   # Serve at "/" the given assets from "priv/static" directory
   plug Plug.Static,
     at: "/", from: :phember,
-    only: ~w(css images js favicon.ico robots.txt)
+    only: ~w(css images js favicon.ico robots.txt assets tests crossdomain.xml testem.js)
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
