@@ -11,6 +11,8 @@ var app = new EmberApp({
     tests: 'apptests'
   }
 })
+app.import('bower_components/elixir-phoenix/phoenix.js');
+// app.import('bower_components/elixir-phoenix/phoenix.js', {exports: {'phoenix': ['Socket']}});
 // Use `app.import` to add additional libraries to the generated
 // output files.
 //
