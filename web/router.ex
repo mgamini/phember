@@ -18,6 +18,10 @@ defmodule Phember.Router do
     get "/", PageController, :index
   end
 
+  socket "/ws", Phember do
+    channel "data:*", DataChannel
+  end
+
   # Other scopes may use custom stacks.
   # scope "/api", Phember do
   #   pipe_through :api
