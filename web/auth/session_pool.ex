@@ -12,8 +12,8 @@ defmodule Phember.Session.Pool do
   def deauthorize(id), do:
     GenServer.call(@authservice, {:deauthorize, id})
 
-  def is_authorized?(id), do:
-    GenServer.call(@authservice, {:is_authorized?, id})
+  def is_authorized?(token), do:
+    GenServer.call(@authservice, {:is_authorized?, token})
 
   #
   # GenServer callbacks
@@ -29,8 +29,8 @@ defmodule Phember.Session.Pool do
   def handle_call({:deauthorize, id}, _from, state), do:
     {:reply, :ok, remove_session(id, state)}
 
-  def handle_call({:is_authorized?, id}, _from, state), do:
-    {:reply, find_session(id, state) !== nil, state}
+  def handle_call({:is_authorized?, token}, _from, state), do:
+    {:reply, find_session(token, state) !== nil, state}
 
 
   #

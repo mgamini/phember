@@ -4,10 +4,6 @@ defmodule Phember.DataChannel do
   alias Phoenix.Socket
   alias Phember.Session
 
-  # def join("data:authorize", auth_message, socket) do
-
-  # end
-
   def join("data:join", auth_message, socket) do
     {:ok, userid, token} = Session.AuthService.authorize_user(auth_message)
     :ok = Session.Pool.authorize(userid, token)
@@ -19,26 +15,18 @@ defmodule Phember.DataChannel do
     {:ok, socket}
   end
 
-  def handle_info(:after_join, socket) do
-    push socket, "user", %{id: socket.assigns.userid, token: }
-    {:noreply, socket}
+  def join("data:store", %{"id" => id, "token" => token}, socket) do
+    if Session.Pool.is_authorized?(token) do
+      {:ok, socket}
+    else
+      :ignore
+    end
   end
 
-  def join("data:store", auth_msg, socket) do
-    IO.inspect auth_msg
-    IO.inspect socket
-    {:ok, socket}
+  def handle_info(:after_join, socket) do
+    push socket, "user", %{id: socket.assigns.userid, token: socket.assigns.token}
+    {:noreply, socket}
   end
 
 end
 
-    # def join(topic, auth_msg, socket) do
-    #   ...
-    #   send(self, :after_join)
-    #   {:ok, socket}
-    # end
-
-    # def handle_info(:after_join, socket) do
-    #   push socket, "feed", %{list: feed_items(socket)}
-    #   {:noreply, socket}
-    # end
