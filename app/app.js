@@ -5,7 +5,7 @@ import config from './config/environment';
 
 // import {Channel, Socket} from 'phoenix';
 
-import Socket from "./helpers/phoenixsocket.js";
+import Socket from "./helpers/phoenixsocket";
 
 var App;
 
